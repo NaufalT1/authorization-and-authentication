@@ -8,8 +8,6 @@ const app = express();
 
 app.use(express.json());
 
-const users = [];
-
 const posts = [
   {
     username: "Joe",
