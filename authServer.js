@@ -31,7 +31,7 @@ app.post("/sign-up", async (req, res) => {
     res.status(500).json({ message: "Error while creating user" });
   }
 });
-app.post("/user/login", async (req, res) => {
+app.post("/sign-in", async (req, res) => {
   const user = users.find((user) => user.name === req.body.name);
   if (user == null) {
     return res.status(401).json({ message: "Not Allowed" });
