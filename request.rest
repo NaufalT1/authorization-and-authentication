@@ -19,7 +19,7 @@ POST http://localhost:4000/sign-up
 Content-Type: application/json
 
 {
-  "name": "John",
+  "username": "John",
   "password": "password"
 }
 
@@ -28,6 +28,6 @@ POST http://localhost:4000/sign-in
 Content-Type: application/json
 
 {
-  "name": "John",
+  "username": "John",
   "password": "password"
 }

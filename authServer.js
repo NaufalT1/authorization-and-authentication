@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -11,10 +13,6 @@ app.use(express.json());
 app.post("/login", (req, res) => {
   //only authorization
   const username = req.body.username;
-  const user = { username: username }; //this contain information of our user. We can add expir etc here
-
-  const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
-  res.json({ accessToken });
 });
 
 app.get("/users", (req, res) => {
@@ -24,7 +22,7 @@ app.get("/users", (req, res) => {
 app.post("/sign-up", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const user = { name: req.body.name, password: hashedPassword };
+    const user = { username: req.body.username, password: hashedPassword };
     users.push(user);
     res.status(201).json(user);
   } catch {
@@ -32,13 +30,15 @@ app.post("/sign-up", async (req, res) => {
   }
 });
 app.post("/sign-in", async (req, res) => {
-  const user = users.find((user) => user.name === req.body.name);
+  const user = users.find((user) => user.username === req.body.username);
   if (user == null) {
     return res.status(401).json({ message: "Not Allowed" });
   }
   try {
     if (await bcrypt.compare(req.body.password, user.password)) {
-      res.status(200).send("Success");
+      const payload = { username: user.username };
+      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
+      res.json({ accessToken });
     } else {
       res.status(401).send("Not Allowed");
     }
