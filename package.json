@@ -6,7 +6,8 @@
   "author": "Naufal",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "devAuth": "nodemon authServer.js"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
