@@ -21,7 +21,7 @@ app.get("/users", (req, res) => {
   res.json(users);
 });
 
-app.post("/user", async (req, res) => {
+app.post("/sign-up", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = { name: req.body.name, password: hashedPassword };
