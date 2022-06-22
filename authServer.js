@@ -4,19 +4,31 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-const users = [];
+//because we haven't created databse yet, it will store here
+var users = [];
+var refreshTokens = [];
 
 const app = express();
 
-app.use(express.json());
+function generateAccessToken(user) {
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "10m",
+  });
+}
 
-app.post("/login", (req, res) => {
-  //only authorization
-  const username = req.body.username;
-});
+function generateRefreshToken(user) {
+  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
+}
+
+app.use(express.json());
 
 app.get("/users", (req, res) => {
   res.json(users);
+});
+app.get("/tokens", (req, res) => {
+  res.json(refreshTokens);
 });
 
 app.post("/sign-up", async (req, res) => {
@@ -37,14 +49,36 @@ app.post("/sign-in", async (req, res) => {
   try {
     if (await bcrypt.compare(req.body.password, user.password)) {
       const payload = { username: user.username };
-      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
-      res.json({ accessToken });
+      const accessToken = generateAccessToken(payload);
+      const refreshToken = generateRefreshToken(payload);
+      refreshTokens.push(refreshToken);
+      res.json({ accessToken, refreshToken });
     } else {
       res.status(401).send("Not Allowed");
     }
   } catch {
     res.status(500).json({ message: "Error while try to log in" });
   }
+});
+
+app.post("/refresh-token", (req, res) => {
+  const refreshToken = req.body.refreshToken;
+  if (refreshToken == null) {
+    return res.sendStatus(401).send("Not Allowed1");
+  }
+  if (!refreshTokens.includes(refreshToken)) {
+    return res.sendStatus(401).send("Not Allowed2");
+  }
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      return res.sendStatus(401).send("Not Allowed3");
+    } else {
+      const payload = { username: user.username };
+      return res.json({
+        accessToken: generateAccessToken(payload),
+      });
+    }
+  });
 });
 
 app.listen(4000, () => {
