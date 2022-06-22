@@ -81,6 +81,13 @@ app.post("/refresh-token", (req, res) => {
   });
 });
 
+app.delete("/sign-out", (req, res) => {
+  refreshTokens = refreshTokens.filter(
+    (token) => token !== req.body.refreshToken
+  );
+  res.sendStatus(204);
+});
+
 app.listen(4000, () => {
   console.log("Application Running on Port 4000");
 });
