@@ -64,14 +64,19 @@ app.post("/sign-in", async (req, res) => {
 app.post("/refresh-token", (req, res) => {
   const refreshToken = req.body.refreshToken;
   if (refreshToken == null) {
-    return res.sendStatus(401).send("Not Allowed1");
+    return res.status(401).send("Refresh Token not Found. Please log in first");
   }
   if (!refreshTokens.includes(refreshToken)) {
-    return res.sendStatus(401).send("Not Allowed2");
+    return res
+      .status(401)
+      .send("You are already logged out. Please log in again");
   }
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) {
-      return res.sendStatus(401).send("Not Allowed3");
+      refreshTokens = refreshTokens.filter(
+        (token) => token !== req.body.refreshToken
+      );
+      return res.status(401).send("Session Expired. Please log in again");
     } else {
       const payload = { username: user.username };
       return res.json({
